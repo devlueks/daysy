@@ -1,0 +1,185 @@
+<resources>
+    <string name="widget_description">Ein Countdown oder „Zeit seit“ auf dem Startbildschirm</string>
+
+    <!-- Common -->
+    <string name="cancel">Abbrechen</string>
+    <string name="ok">OK</string>
+    <string name="close">Schließen</string>
+    <string name="back">Zurück</string>
+    <string name="add">Hinzufügen</string>
+    <string name="done">Fertig</string>
+    <string name="delete">Löschen</string>
+    <string name="reset">Zurücksetzen</string>
+    <string name="undo">Rückgängig</string>
+    <string name="settings">Einstellungen</string>
+    <string name="pinned">Angepinnt</string>
+    <string name="off">Aus</string>
+    <string name="on">An</string>
+
+    <!-- Tabs / kinds -->
+    <string name="tab_countdowns">Countdowns</string>
+    <string name="tab_since">Zeit seit</string>
+    <string name="kind_countdown">Countdown</string>
+    <string name="kind_since">Zeit seit</string>
+
+    <!-- List -->
+    <string name="load_problem">Einige gespeicherte Einträge konnten nicht gelesen werden. Eine Sicherungskopie wurde aufbewahrt.</string>
+    <string name="deleted_one">„%1$s“ gelöscht</string>
+    <plurals name="deleted_many">
+        <item quantity="one">%d Eintrag gelöscht</item>
+        <item quantity="other">%d Einträge gelöscht</item>
+    </plurals>
+    <string name="empty_countdowns_title">Noch keine Countdowns</string>
+    <string name="empty_countdowns_text">Tippe auf +, um einen Countdown hinzuzufügen.</string>
+    <string name="empty_since_title">Noch keine Einträge</string>
+    <string name="empty_since_text">Tippe auf +, um die Zeit seit einem Ereignis zu zählen.</string>
+    <string name="filter_active">Aktiv</string>
+    <string name="filter_expired">Abgelaufen</string>
+    <string name="none_expired">Keine abgelaufenen Countdowns</string>
+    <string name="none_active">Keine aktiven Countdowns</string>
+    <string name="tag_expired">Abgelaufen</string>
+    <string name="tag_since_end">Seit Ablauf</string>
+    <string name="milestone_next_description">Nächster Meilenstein: %1$s, %2$s</string>
+    <string name="milestone_reached">🎉 %1$s erreicht</string>
+    <string name="just_now">gerade eben</string>
+    <string name="any_moment">gleich</string>
+
+    <!-- Units on cards and widgets (shown after the number) -->
+    <plurals name="unit_years"><item quantity="one">Jahr</item><item quantity="other">Jahre</item></plurals>
+    <plurals name="unit_months"><item quantity="one">Monat</item><item quantity="other">Monate</item></plurals>
+    <plurals name="unit_weeks"><item quantity="one">Woche</item><item quantity="other">Wochen</item></plurals>
+    <plurals name="unit_days"><item quantity="one">Tag</item><item quantity="other">Tage</item></plurals>
+    <plurals name="unit_hours"><item quantity="one">Std.</item><item quantity="other">Std.</item></plurals>
+    <plurals name="unit_minutes"><item quantity="one">Min.</item><item quantity="other">Min.</item></plurals>
+    <plurals name="unit_seconds"><item quantity="one">Sek.</item><item quantity="other">Sek.</item></plurals>
+
+    <!-- "vor 3 Tagen" -->
+    <plurals name="ago_years"><item quantity="one">vor %d Jahr</item><item quantity="other">vor %d Jahren</item></plurals>
+    <plurals name="ago_months"><item quantity="one">vor %d Monat</item><item quantity="other">vor %d Monaten</item></plurals>
+    <plurals name="ago_weeks"><item quantity="one">vor %d Woche</item><item quantity="other">vor %d Wochen</item></plurals>
+    <plurals name="ago_days"><item quantity="one">vor %d Tag</item><item quantity="other">vor %d Tagen</item></plurals>
+    <plurals name="ago_hours"><item quantity="one">vor %d Stunde</item><item quantity="other">vor %d Stunden</item></plurals>
+    <plurals name="ago_minutes"><item quantity="one">vor %d Minute</item><item quantity="other">vor %d Minuten</item></plurals>
+
+    <!-- "in 3 Tagen" -->
+    <plurals name="in_years"><item quantity="one">in %d Jahr</item><item quantity="other">in %d Jahren</item></plurals>
+    <plurals name="in_months"><item quantity="one">in %d Monat</item><item quantity="other">in %d Monaten</item></plurals>
+    <plurals name="in_weeks"><item quantity="one">in %d Woche</item><item quantity="other">in %d Wochen</item></plurals>
+    <plurals name="in_days"><item quantity="one">in %d Tag</item><item quantity="other">in %d Tagen</item></plurals>
+    <plurals name="in_hours"><item quantity="one">in %d Stunde</item><item quantity="other">in %d Stunden</item></plurals>
+    <plurals name="in_minutes"><item quantity="one">in %d Minute</item><item quantity="other">in %d Minuten</item></plurals>
+
+    <!-- Milestones: "100 Tage", "1 Jahr" -->
+    <plurals name="milestone_days"><item quantity="one">%d Tag</item><item quantity="other">%d Tage</item></plurals>
+    <plurals name="milestone_weeks"><item quantity="one">%d Woche</item><item quantity="other">%d Wochen</item></plurals>
+    <plurals name="milestone_months"><item quantity="one">%d Monat</item><item quantity="other">%d Monate</item></plurals>
+    <plurals name="milestone_years"><item quantity="one">%d Jahr</item><item quantity="other">%d Jahre</item></plurals>
+
+    <!-- Reminders -->
+    <string name="reminder_none">Keine</string>
+    <string name="reminder_hour">1 Std.</string>
+    <string name="reminder_day">1 Tag</string>
+    <string name="reminder_week">1 Woche</string>
+
+    <!-- Colors -->
+    <string name="color_system">Systemfarben</string>
+    <string name="color_red">Rot</string>
+    <string name="color_orange">Orange</string>
+    <string name="color_yellow">Gelb</string>
+    <string name="color_green">Grün</string>
+    <string name="color_mint">Mint</string>
+    <string name="color_teal">Türkis</string>
+    <string name="color_blue">Blau</string>
+    <string name="color_indigo">Indigo</string>
+    <string name="color_purple">Lila</string>
+    <string name="color_pink">Pink</string>
+    <string name="color_gray">Grau</string>
+
+    <!-- Editor -->
+    <string name="editor_edit">Bearbeiten</string>
+    <string name="editor_new">Neuer Eintrag</string>
+    <string name="unpin">Nicht mehr anpinnen</string>
+    <string name="pin">Anpinnen</string>
+    <string name="other_shape">Andere Form</string>
+    <string name="title_hint">Titel</string>
+    <string name="error_no_title">Bitte gib einen Titel ein.</string>
+    <string name="error_start_in_future">Der Beginn liegt in der Zukunft. Wähle eine frühere Uhrzeit oder erstelle einen Countdown.</string>
+    <string name="error_time_in_future">Der Zeitpunkt darf nicht in der Zukunft liegen. Wähle eine frühere Uhrzeit oder erstelle einen Countdown.</string>
+    <string name="section_emoji">Emoji</string>
+    <string name="no_emoji">Kein Emoji</string>
+    <string name="choose_emoji">Emoji auswählen</string>
+    <string name="choose_own_emoji">Eigenes Emoji auswählen</string>
+    <string name="section_color">Farbe</string>
+    <string name="section_end">Ablauf</string>
+    <string name="section_start">Beginn</string>
+    <string name="date">Datum</string>
+    <string name="time">Uhrzeit</string>
+    <string name="all_day">Ganztägig</string>
+    <string name="keep_counting">Nach Ablauf weiterzählen</string>
+    <string name="keep_counting_on">Wird unter „Zeit seit“ weitergezählt</string>
+    <string name="keep_counting_off">Wird als abgelaufen markiert</string>
+    <string name="section_milestones">Meilensteine</string>
+    <string name="show_milestones">Meilensteine anzeigen</string>
+    <string name="show_milestones_hint">z. B. 100 Tage, 1 Jahr</string>
+    <string name="notify">Benachrichtigen</string>
+    <string name="disabled_in_settings">In den Einstellungen deaktiviert</string>
+    <string name="notify_milestone_hint">Wenn ein Meilenstein erreicht ist</string>
+    <string name="section_notification">Benachrichtigung</string>
+    <string name="notify_on_end">Bei Ablauf benachrichtigen</string>
+    <string name="extra_reminder">Zusätzliche Erinnerung</string>
+    <string name="reset_title">Zurücksetzen?</string>
+    <string name="reset_text">„%1$s“ startet jetzt wieder bei 0. Das bisherige Startdatum geht dabei verloren.</string>
+    <string name="pick_time">Uhrzeit wählen</string>
+    <string name="own_emoji">Eigenes Emoji</string>
+    <string name="own_emoji_hint">Öffne die Emoji-Ansicht deiner Tastatur – dort kannst du auch suchen.</string>
+    <string name="apply">Übernehmen</string>
+
+    <!-- Settings -->
+    <string name="section_appearance">Darstellung</string>
+    <string name="compact_mode">Kompakter Modus</string>
+    <string name="compact_on">Ohne Emoji, Titel und Datum in einer Zeile</string>
+    <string name="compact_off">Karten mit Emoji</string>
+    <string name="show_date">Datum anzeigen</string>
+    <string name="show_date_off">Nur der Titel</string>
+    <string name="show_date_compact">Datum neben dem Titel</string>
+    <string name="show_date_on">Datum und Uhrzeit unter dem Titel</string>
+    <string name="big_emoji">Emoji ohne Hintergrund</string>
+    <string name="big_emoji_on">Emoji wird groß und frei angezeigt</string>
+    <string name="big_emoji_off">Emoji in einer Form</string>
+    <string name="unit_count">Angezeigte Zeiteinheiten</string>
+    <string name="unit_count_hint">Wie detailliert die Zeit angezeigt wird</string>
+    <string name="section_notifications">Benachrichtigungen</string>
+    <string name="notifications">Benachrichtigungen</string>
+    <string name="notifications_on">Bei Ablauf und als Erinnerung</string>
+    <string name="notifications_off">Deaktiviert</string>
+    <string name="notifications_blocked">Benachrichtigungen blockiert</string>
+    <string name="notifications_blocked_hint">In den Systemeinstellungen erlauben</string>
+    <string name="exact_alarms">Wecker &amp; Erinnerungen</string>
+    <string name="exact_alarms_hint">Erlauben, damit Benachrichtigungen pünktlich ankommen</string>
+    <string name="default_reminder">Standarderinnerung</string>
+    <string name="default_reminder_hint">Vorausgewählt für neue Countdowns</string>
+    <string name="section_design">Design</string>
+    <string name="theme">Hell oder dunkel</string>
+    <string name="theme_hint">Die Farben kommen vom System</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="settings_tip">Tipp: Tippe auf einen Eintrag, um ihn zu bearbeiten, anzupinnen oder zu löschen. Wische zur Seite, um zwischen „Countdowns“ und „Zeit seit“ zu wechseln.</string>
+
+    <!-- Notifications -->
+    <string name="channel_countdowns">Countdowns</string>
+    <string name="channel_countdowns_description">Bei Ablauf eines Countdowns und Erinnerungen davor</string>
+    <string name="channel_milestones">Meilensteine</string>
+    <string name="channel_milestones_description">Wenn ein „Zeit seit“-Eintrag einen Meilenstein erreicht</string>
+    <string name="notification_milestone">Meilenstein erreicht: %1$s 🎉</string>
+    <string name="notification_reminder">Noch %1$s</string>
+    <string name="notification_now">Es ist so weit!</string>
+
+    <!-- Widget -->
+    <string name="widget_choose_entry">Eintrag auswählen</string>
+    <string name="widget_just_started">Gerade gestartet</string>
+    <string name="widget_almost">Gleich so weit</string>
+    <string name="widget_config_title">Widget</string>
+    <string name="widget_config_empty">Noch keine Einträge. Lege zuerst in der App einen Countdown oder „Zeit seit“ an.</string>
+    <string name="widget_config_question">Welcher Eintrag soll auf dem Startbildschirm erscheinen?</string>
+</resources>
