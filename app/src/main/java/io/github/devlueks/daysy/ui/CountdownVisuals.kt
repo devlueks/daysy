@@ -14,7 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,18 +79,33 @@ fun Countdown.dateLine(): String = buildString {
     time?.let { append(" · ").append(shortTime(it)) }
 }
 
-/** Current time in millis, updated exactly on every full second. */
+/**
+ * Current time in millis. Ticks on every full second while [everySecond] says seconds are on
+ * screen, otherwise only on every full minute – most of the time only days, hours and minutes
+ * are shown, so this saves a lot of needless redraws. Pauses while the app is in the background.
+ */
 @Composable
-fun rememberNow(): State<Long> {
+fun rememberNow(key: Any? = null, everySecond: (now: Long) -> Boolean = { true }): State<Long> {
     val now = remember { mutableLongStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            now.longValue = System.currentTimeMillis()
-            delay(1000 - now.longValue % 1000)
+    val needsSeconds by rememberUpdatedState(everySecond)
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    // Restarts (and refreshes at once) when [key] changes, e.g. when an entry was added or edited.
+    LaunchedEffect(lifecycle, key) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                val t = System.currentTimeMillis()
+                now.longValue = t
+                val step = if (needsSeconds(t)) 1_000L else 60_000L
+                delay(step - t % step)
+            }
         }
     }
     return now
 }
+
+/** Seconds are only shown for spans under a day (see topUnits); a minute of margin for the switch-over. */
+fun List<Countdown>.showsSeconds(now: Long): Boolean =
+    any { kotlin.math.abs(it.targetMillis() - now) < 24 * 60 * 60 * 1000L + 60_000L }
 
 @Composable
 fun Tag(text: String, container: Color, content: Color) {

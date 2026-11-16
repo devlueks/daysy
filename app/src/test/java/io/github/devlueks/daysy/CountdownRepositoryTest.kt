@@ -3,7 +3,7 @@ package io.github.devlueks.daysy
 import io.github.devlueks.daysy.data.Countdown
 import io.github.devlueks.daysy.data.CountdownRepository
 import io.github.devlueks.daysy.data.Kind
-import io.github.devlueks.daysy.data.Reminder
+import io.github.devlueks.daysy.data.normalizeReminders
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -28,7 +28,7 @@ class CountdownRepositoryTest {
         val original = Countdown(
             id = 0, name = "Silvester 🍾", date = LocalDate.of(2027, 1, 1), time = LocalTime.of(18, 30),
             emoji = "🍾", kind = Kind.COUNTDOWN, autoCountUp = true, pinned = true, shape = 4,
-            notify = false, reminder = Reminder.DAY, color = "lila", milestones = true,
+            notify = false, reminders = listOf(1440L, 60L), color = "lila", milestones = true,
         )
         CountdownRepository(dir.root).apply { load(); upsert(original) }
 
@@ -43,10 +43,23 @@ class CountdownRepositoryTest {
         assertEquals("Alt", c.name)
         assertEquals(Kind.COUNTDOWN, c.kind)
         assertTrue(c.notify)
-        assertEquals(Reminder.NONE, c.reminder)
+        assertEquals(emptyList<Long>(), c.reminders)
         assertEquals(-1, c.shape)
         assertEquals(null, c.color)
         assertFalse(c.milestones)
+    }
+
+    @Test
+    fun singleReminderFromOlderVersionsIsKept() = runBlocking {
+        file().writeText("""[{"id":1,"name":"Alt","date":"2026-12-24","reminder":"DAY"},{"id":2,"name":"Ohne","date":"2026-12-24","reminder":"NONE"}]""")
+        val list = CountdownRepository(dir.root).apply { load() }.countdowns.value
+        assertEquals(listOf(listOf(24 * 60L), emptyList<Long>()), list.map { it.reminders })
+    }
+
+    @Test
+    fun remindersAreCleanedUp() {
+        assertEquals(listOf(1440L, 60L, 15L), normalizeReminders(listOf(15L, 60L, 0L, 1440L, 60L, -5L)))
+        assertEquals(5, normalizeReminders((1L..9L).toList()).size)
     }
 
     @Test

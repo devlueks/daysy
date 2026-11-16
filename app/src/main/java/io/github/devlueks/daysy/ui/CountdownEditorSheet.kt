@@ -1,5 +1,8 @@
 package io.github.devlueks.daysy.ui
 
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.Shape
@@ -100,7 +104,6 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.ui.res.painterResource
 import io.github.devlueks.daysy.R
 import androidx.compose.ui.res.stringResource
-import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -111,6 +114,7 @@ import androidx.compose.ui.text.font.FontWeight
 import io.github.devlueks.daysy.ui.theme.ExpressiveFont
 import io.github.devlueks.daysy.data.Countdown
 import io.github.devlueks.daysy.data.Reminder
+import io.github.devlueks.daysy.data.normalizeReminders
 import io.github.devlueks.daysy.notify.rememberNotificationPermissionRequest
 import androidx.compose.material3.ToggleButtonDefaults
 import java.time.LocalDateTime
@@ -135,13 +139,18 @@ fun CountdownEditorSheet(
     onDismiss: () -> Unit,
     onSave: (Countdown) -> Unit,
     onDelete: (Countdown) -> Unit,
+    onShare: (Countdown) -> Unit = {},
 ) {
     fun defaultDate(k: Kind) = if (k == Kind.COUNTDOWN) LocalDate.now().plusDays(7) else LocalDate.now()
 
     var kind by rememberSaveable { mutableStateOf(initial?.kind ?: initialKind) }
     var autoCountUp by rememberSaveable { mutableStateOf(initial?.autoCountUp ?: false) }
     var notify by rememberSaveable { mutableStateOf(initial?.notify ?: true) }
-    var reminder by rememberSaveable { mutableStateOf(initial?.reminder ?: defaultReminder) }
+    // Minutes before the end; a new countdown starts with the default reminder from the settings.
+    var reminders by rememberSaveable {
+        mutableStateOf(initial?.reminders ?: listOfNotNull(defaultReminder.before?.toMinutes()))
+    }
+    var showCustomReminder by rememberSaveable { mutableStateOf(false) }
     val requestNotificationPermission = rememberNotificationPermissionRequest()
     var pinned by rememberSaveable { mutableStateOf(initial?.pinned ?: false) }
     var shape by rememberSaveable {
@@ -185,7 +194,7 @@ fun CountdownEditorSheet(
         pinned = pinned,
         shape = shape,
         notify = notify,
-        reminder = reminder,
+        reminders = normalizeReminders(reminders),
         color = color,
         milestones = kind == Kind.COUNTUP && milestones,
     )
@@ -217,33 +226,51 @@ fun CountdownEditorSheet(
                 .padding(bottom = 12.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = when {
-                        initial != null -> stringResource(R.string.editor_edit)
-                        else -> stringResource(R.string.editor_new)
-                    },
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontFamily = ExpressiveFont,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.weight(1f),
-                )
-                // "Zeit seit" only: restart at 0 (asks first).
-                if (canReset) {
-                    FilledTonalIconButton(onClick = { showResetDialog = true }) {
-                        Icon(Icons.Rounded.Refresh, contentDescription = stringResource(R.string.reset))
+                // Title (+ pin mark) takes the free space; the buttons stay at the right edge.
+                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = when {
+                            initial != null -> stringResource(R.string.editor_edit)
+                            else -> stringResource(R.string.editor_new)
+                        },
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontFamily = ExpressiveFont,
+                        fontWeight = FontWeight.ExtraBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    // Pinning moved into the menu – this small mark keeps it visible at a glance.
+                    AnimatedVisibility(visible = pinned) {
+                        Icon(
+                            painterResource(R.drawable.ic_pin),
+                            contentDescription = stringResource(R.string.pinned),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(22.dp),
+                        )
                     }
                 }
-                FilledTonalIconToggleButton(checked = pinned, onCheckedChange = { pinned = it }) {
-                    Icon(
-                        painterResource(R.drawable.ic_pin),
-                        contentDescription = if (pinned) stringResource(R.string.unpin) else stringResource(R.string.pin),
+                // Secondary actions live in one menu, so the header stays calm: only "more" and ✓.
+                Box {
+                    var menuOpen by remember { mutableStateOf(false) }
+                    FilledTonalIconButton(onClick = { menuOpen = true }) {
+                        Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.more_actions))
+                    }
+                    // Pin takes effect on save, like every other change in the editor;
+                    // share uses the saved entry (not unsaved edits); reset asks first.
+                    EntryActionsMenu(
+                        expanded = menuOpen,
+                        onDismiss = { menuOpen = false },
+                        pinned = pinned,
+                        onTogglePin = { pinned = !pinned },
+                        onShare = initial?.let { { onShare(it) } },
+                        onReset = if (canReset) ({ showResetDialog = true }) else null,
+                        onDelete = initial?.let { { onDelete(it) } },
                     )
                 }
-                if (initial != null) {
-                    FilledTonalIconButton(onClick = { onDelete(initial) }) {
-                        Icon(Icons.Rounded.Delete, contentDescription = stringResource(R.string.delete))
-                    }
-                }
+                Spacer(Modifier.width(4.dp))
                 // Always visible "done": closes and saves.
                 FilledIconButton(
                     onClick = {
@@ -559,33 +586,15 @@ fun CountdownEditorSheet(
                                 .padding(16.dp)
                         ) {
                             Text(
-                                stringResource(R.string.extra_reminder),
+                                stringResource(R.string.reminders_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(start = 4.dp, bottom = 12.dp),
                             )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-                            ) {
-                                Reminder.entries.forEachIndexed { index, r ->
-                                    ToggleButton(
-                                        checked = reminder == r,
-                                        onCheckedChange = { reminder = r },
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .semantics { role = Role.RadioButton },
-                                        shapes = when (index) {
-                                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                            Reminder.entries.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                                        },
-                                        colors = ToggleButtonDefaults.colors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                        ),
-                                        contentPadding = PaddingValues(horizontal = 4.dp),
-                                    ) { Text(stringResource(r.labelRes), maxLines = 1, softWrap = false) }
-                                }
-                            }
+                            ReminderChoices(
+                                selected = reminders,
+                                onChange = { reminders = it },
+                                onAddCustom = { showCustomReminder = true },
+                            )
                         }
                     }
                 }
@@ -615,22 +624,25 @@ fun CountdownEditorSheet(
         )
     }
 
+    if (showCustomReminder) {
+        CustomReminderDialog(
+            onAdd = { minutes ->
+                reminders = normalizeReminders(reminders + minutes)
+                showCustomReminder = false
+            },
+            onDismiss = { showCustomReminder = false },
+        )
+    }
+
     if (showResetDialog) {
-        AlertDialog(
-            onDismissRequest = { showResetDialog = false },
-            icon = { Icon(Icons.Rounded.Refresh, contentDescription = null) },
-            title = { Text(stringResource(R.string.reset_title)) },
-            text = { Text("„${name.trim()}“ startet jetzt wieder bei 0. Das bisherige Startdatum geht dabei verloren.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showResetDialog = false
-                    val now = LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS)
-                    onSave(current().copy(date = now.toLocalDate(), time = now.toLocalTime()))
-                }) { Text(stringResource(R.string.reset)) }
+        ResetDialog(
+            name = name,
+            onConfirm = {
+                showResetDialog = false
+                val now = LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS)
+                onSave(current().copy(date = now.toLocalDate(), time = now.toLocalTime()))
             },
-            dismissButton = {
-                TextButton(onClick = { showResetDialog = false }) { Text(stringResource(R.string.cancel)) }
-            },
+            onDismiss = { showResetDialog = false },
         )
     }
 

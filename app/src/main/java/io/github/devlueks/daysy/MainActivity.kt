@@ -25,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.devlueks.daysy.data.Kind
 import io.github.devlueks.daysy.data.ThemeMode
 import io.github.devlueks.daysy.ui.CountdownListScreen
 import io.github.devlueks.daysy.ui.CountdownViewModel
@@ -35,6 +36,14 @@ class MainActivity : ComponentActivity() {
 
     /** Bumped when a notification is tapped while the app is open: go back to the list. */
     private val showListRequest = mutableIntStateOf(0)
+
+    /** Set by an app shortcut ("New countdown" / "New time since", see [ShortcutActivity]). */
+    private val newEntryRequest = mutableStateOf<Kind?>(null)
+
+    override fun onResume() {
+        super.onResume()
+        PendingShortcut.take()?.let { newEntryRequest.value = it }
+    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -89,6 +98,8 @@ class MainActivity : ComponentActivity() {
                             CountdownListScreen(
                                 viewModel = viewModel,
                                 onOpenSettings = { settingsOpen = true },
+                                newEntryRequest = newEntryRequest.value,
+                                onNewEntryHandled = { newEntryRequest.value = null },
                             )
                         }
                     }

@@ -25,6 +25,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import io.github.devlueks.daysy.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -101,7 +103,7 @@ fun ExpressiveSnackbar(data: SnackbarData) {
                     shapes = IconButtonDefaults.shapes(),
                     colors = IconButtonDefaults.iconButtonColors(contentColor = c.inverseOnSurface),
                 ) {
-                    Icon(Icons.Rounded.Close, contentDescription = "Schließen")
+                    Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.close))
                 }
             }
         }

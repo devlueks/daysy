@@ -124,10 +124,19 @@ class CountdownRepository(private val directory: File) {
         pinned = o.optBoolean("pinned", false),
         shape = o.optInt("shape", -1),
         notify = o.optBoolean("notify", true),
-        reminder = Reminder.entries.firstOrNull { it.name == o.optString("reminder") } ?: Reminder.NONE,
+        reminders = decodeReminders(o),
         color = o.optString("color").takeIf { it.isNotEmpty() },
         milestones = o.optBoolean("milestones", false),
     )
+
+    /** "reminders": [60, 1440] – or, from older versions, a single "reminder": "DAY". */
+    private fun decodeReminders(o: JSONObject): List<Long> {
+        o.optJSONArray("reminders")?.let { arr ->
+            return normalizeReminders((0 until arr.length()).map { arr.optLong(it) })
+        }
+        val old = Reminder.entries.firstOrNull { it.name == o.optString("reminder") }
+        return listOfNotNull(old?.before?.toMinutes())
+    }
 
     private fun encode(list: List<Countdown>): String = JSONArray().apply {
         list.forEach { c ->
@@ -142,7 +151,7 @@ class CountdownRepository(private val directory: File) {
                 put("pinned", c.pinned)
                 put("shape", c.shape)
                 put("notify", c.notify)
-                put("reminder", c.reminder.name)
+                put("reminders", JSONArray(c.reminders))
                 c.color?.let { put("color", it) }
                 put("milestones", c.milestones)
             })

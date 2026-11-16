@@ -17,6 +17,9 @@ import io.github.devlueks.daysy.R
 import io.github.devlueks.daysy.data.Countdown
 import io.github.devlueks.daysy.data.Kind
 import io.github.devlueks.daysy.data.nextMilestone
+import io.github.devlueks.daysy.data.MAX_REMINDERS
+import io.github.devlueks.daysy.data.normalizeReminders
+import io.github.devlueks.daysy.ui.reminderLabel
 import io.github.devlueks.daysy.ui.milestoneLabel
 import java.time.ZonedDateTime
 
@@ -41,6 +44,9 @@ object CountdownNotifications {
     private const val EXTRA_REMINDER = "reminder_label"
     private const val EXTRA_MILESTONE = "milestone_label"
     private const val CHANNEL_MILESTONES = "milestones"
+    private const val EXTRA_SLOT = "slot"
+    private const val SLOT_END = 0
+    private const val SLOTS = MAX_REMINDERS + 1
 
 
     fun canPostNotifications(context: Context): Boolean =
@@ -68,16 +74,21 @@ object CountdownNotifications {
                     if (!c.milestones) continue
                     // Only the next milestone; when it fires, the one after it gets scheduled.
                     nextMilestone(c.target(), ZonedDateTime.now())?.let { m ->
-                        wanted[requestCode(c.id, reminder = false)] =
+                        wanted[requestCode(c.id, SLOT_END)] =
                             m.at.toInstant().toEpochMilli() to alarmIntent(context, c, null).putExtra(EXTRA_MILESTONE, context.resources.milestoneLabel(m))
                     }
                     continue
                 }
                 val end = c.targetMillis()
-                if (end > now) wanted[requestCode(c.id, reminder = false)] = end to alarmIntent(context, c, null)
-                c.reminder.before?.let { before ->
-                    val at = end - before.toMillis()
-                    if (at > now) wanted[requestCode(c.id, reminder = true)] = at to alarmIntent(context, c, context.getString(c.reminder.labelRes))
+                if (end > now) wanted[requestCode(c.id, SLOT_END)] = end to alarmIntent(context, c, null)
+                // One alarm per reminder, each in its own slot (1, 2, …).
+                normalizeReminders(c.reminders).forEachIndexed { index, minutes ->
+                    val at = end - minutes * 60_000L
+                    val slot = index + 1
+                    if (at > now) {
+                        wanted[requestCode(c.id, slot)] = at to
+                            alarmIntent(context, c, context.resources.reminderLabel(minutes)).putExtra(EXTRA_SLOT, slot)
+                    }
                 }
             }
         }
@@ -112,7 +123,8 @@ object CountdownNotifications {
     fun show(context: Context, intent: Intent) {
         if (!canPostNotifications(context)) return
         val id = intent.getLongExtra(EXTRA_ID, -1)
-        if (!markFired(context, requestCode(id, intent.getStringExtra(EXTRA_REMINDER) != null), intent.getLongExtra(EXTRA_AT, 0))) {
+        val code = requestCode(id, intent.getIntExtra(EXTRA_SLOT, SLOT_END))
+        if (!markFired(context, code, intent.getLongExtra(EXTRA_AT, 0))) {
             return // the other alarm of the pair already showed it
         }
         ensureChannels(context)
@@ -123,7 +135,7 @@ object CountdownNotifications {
 
         val open = PendingIntent.getActivity(
             context,
-            requestCode(id, reminder != null),
+            code,
             Intent(context, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
@@ -133,7 +145,7 @@ object CountdownNotifications {
             .setContentTitle(listOfNotNull(emoji, name).joinToString(" "))
             .setContentText(
                 when {
-                    milestone != null -> "Meilenstein erreicht: $milestone 🎉"
+                    milestone != null -> context.getString(R.string.notification_milestone, milestone)
                     reminder != null -> context.getString(R.string.notification_reminder, reminder)
                     else -> context.getString(R.string.notification_now)
                 }
@@ -144,7 +156,7 @@ object CountdownNotifications {
             .setAutoCancel(true)
             .build()
         @Suppress("MissingPermission") // checked above
-        NotificationManagerCompat.from(context).notify(requestCode(id, reminder != null), notification)
+        NotificationManagerCompat.from(context).notify(code, notification)
     }
 
     /**
@@ -159,7 +171,7 @@ object CountdownNotifications {
                     description = context.getString(R.string.channel_countdowns_description)
                 },
                 NotificationChannel(CHANNEL_MILESTONES, context.getString(R.string.channel_milestones), NotificationManager.IMPORTANCE_DEFAULT).apply {
-                    description = "Wenn ein „Zeit seit“-Eintrag einen Meilenstein erreicht"
+                    description = context.getString(R.string.channel_milestones_description)
                 },
             )
         )
@@ -172,7 +184,8 @@ object CountdownNotifications {
             .putExtra(EXTRA_EMOJI, c.emoji)
             .putExtra(EXTRA_REMINDER, reminderLabel)
 
-    private fun requestCode(id: Long, reminder: Boolean): Int = (id * 2 + if (reminder) 1 else 0).toInt()
+    /** Slot 0 = end (or next milestone), 1..[MAX_REMINDERS] = reminders. */
+    private fun requestCode(id: Long, slot: Int): Int = (id * SLOTS + slot).toInt()
 
     private fun pendingFor(context: Context, code: Int, intent: Intent): PendingIntent =
         PendingIntent.getBroadcast(context, code, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)

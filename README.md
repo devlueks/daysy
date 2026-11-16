@@ -2,11 +2,21 @@
 
 A simple, modern countdown app for Android – count down to the moments ahead and count up from the ones behind you. Built with Jetpack Compose in **Material 3 Expressive**.
 
+**[Download the latest APK](https://github.com/devlueks/daysy/releases/latest)** · Android 8.0 or newer
+
 <p>
-  <img src="docs/screenshots/countdowns.png" width="250" alt="Countdowns" />
-  <img src="docs/screenshots/time-since.png" width="250" alt="Time since" />
-  <img src="docs/screenshots/editor.png" width="250" alt="Editor" />
+  <img src="docs/screenshots/countdowns.png" width="200" alt="Countdowns with own colors" />
+  <img src="docs/screenshots/time-since.png" width="200" alt="Time since with milestones" />
+  <img src="docs/screenshots/compact.png" width="200" alt="Compact mode" />
+  <img src="docs/screenshots/light.png" width="200" alt="Light theme with free-standing emoji" />
 </p>
+<p>
+  <img src="docs/screenshots/editor.png" width="200" alt="Editor with several reminders" />
+  <img src="docs/screenshots/menu.png" width="200" alt="Long-press menu" />
+  <img src="docs/screenshots/share.png" width="200" alt="Sharing a countdown as an image" />
+</p>
+
+<sub>From left: own card colors · "time since" with milestones · compact mode · light theme with free-standing emoji · several reminders · long-press menu · share as image</sub>
 
 ## Features
 
@@ -14,12 +24,14 @@ A simple, modern countdown app for Android – count down to the moments ahead a
 - **Calendar-correct time** – years, months, weeks, days, hours and minutes; choose how many units are shown.
 - **Make it yours** – an emoji (or any emoji from your keyboard) in a playful shape, plus 11 card colors or your system colors.
 - **Milestones** – optional for "time since": 1 week, 100 days, 1 year … with a wavy progress bar and notifications.
-- **Notifications** – when a countdown ends, plus an optional reminder 1 hour, 1 day or 1 week before.
+- **Notifications** – when a countdown ends, plus up to 5 reminders before it (15 min, 1 hour, 1 day, 1 week or your own time).
+- **Quick actions** – press and hold an entry to edit, pin, share, reset or delete it.
+- **Share** – send a countdown as an image of its card, with the text alongside.
+- **App shortcuts** – press and hold the app icon for "New countdown" or "New time since".
 - **Home screen widgets** – look like the cards in the app and adapt to their size.
 - **Compact mode**, light/dark theme, pinning, undo after deleting.
 - **English and German** – follows your phone's language (per-app language on Android 13+).
 - **Private** – no account, no ads, no tracking, no internet permission. Everything stays on your device.
-
 ## Building
 
 Requirements: a recent Android Studio. Gradle runs on JDK 21 – the one bundled with Android Studio works.

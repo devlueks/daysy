@@ -57,3 +57,15 @@ fun shortDate(date: LocalDate, weekday: Boolean = true): String {
     val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton)
     return date.format(DateTimeFormatter.ofPattern(pattern, locale))
 }
+
+/** A reminder time in the largest whole unit: "1 Woche", "2 Tage", "3 Stunden", "30 Minuten". */
+fun Resources.reminderLabel(minutes: Long): String {
+    val (res, n) = when {
+        minutes % (7 * 24 * 60) == 0L -> R.plurals.reminder_weeks to minutes / (7 * 24 * 60)
+        minutes % (24 * 60) == 0L -> R.plurals.reminder_days to minutes / (24 * 60)
+        minutes % 60 == 0L -> R.plurals.reminder_hours to minutes / 60
+        else -> R.plurals.reminder_minutes to minutes
+    }
+    val count = n.toInt()
+    return getQuantityString(res, count, count)
+}

@@ -1,5 +1,6 @@
 package io.github.devlueks.daysy.ui
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.background
@@ -58,6 +59,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -121,13 +123,15 @@ private data class Entry(val countdown: Countdown, val state: DisplayState)
 fun CountdownListScreen(
     viewModel: CountdownViewModel,
     onOpenSettings: () -> Unit,
+    newEntryRequest: Kind? = null,
+    onNewEntryHandled: () -> Unit = {},
 ) {
     val countdowns by viewModel.countdowns.collectAsStateWithLifecycle()
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val recentlyDeleted by viewModel.recentlyDeleted.collectAsStateWithLifecycle()
     val isLoaded by viewModel.isLoaded.collectAsStateWithLifecycle()
     val loadProblem by viewModel.loadProblem.collectAsStateWithLifecycle()
-    val now by rememberNow()
+    val now by rememberNow(key = countdowns) { t -> countdowns.showsSeconds(t) }
 
     val entries = countdowns.map { Entry(it, it.state(now)) }
     val countdownTab = entries
@@ -150,6 +154,8 @@ fun CountdownListScreen(
     // Which editor is open: null = none, NEW_ENTRY = new one, otherwise the id being edited.
     // Saveable, so an open editor survives rotation and dark-mode switches.
     var editorTarget by rememberSaveable { mutableStateOf<Long?>(null) }
+    // Entry whose share preview is open (shown on top of the editor).
+    var shareTarget by rememberSaveable { mutableStateOf<Long?>(null) }
     // Swipe left/right between "Countdowns" and "Zeit seit" (the bottom bar follows along).
     val pagerState = rememberPagerState { 2 }
     val tab = pagerState.targetPage
@@ -191,6 +197,22 @@ fun CountdownListScreen(
     }
 
     val onEdit: (Countdown) -> Unit = { editorTarget = it.id }
+    // Long-press menu on a card: the same actions as in the editor, applied right away.
+    var resetTarget by rememberSaveable { mutableStateOf<Long?>(null) }
+    val entryActions = EntryActions(
+        togglePin = { viewModel.save(it.copy(pinned = !it.pinned)) },
+        share = { shareTarget = it.id },
+        reset = { resetTarget = it.id },
+        delete = { viewModel.delete(it) },
+    )
+
+    // App shortcut: switch to the matching tab, then open a new entry there.
+    LaunchedEffect(newEntryRequest) {
+        val kind = newEntryRequest ?: return@LaunchedEffect
+        pagerState.scrollToPage(if (kind == Kind.COUNTDOWN) 0 else 1)
+        editorTarget = NEW_ENTRY
+        onNewEntryHandled()
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -239,7 +261,7 @@ fun CountdownListScreen(
                             CountdownFilter.Expired -> it.state == DisplayState.Expired
                         }
                     }
-                    EntryList(visible, now, settings, bottom, listStates[0], onEdit) {
+                    EntryList(visible, now, settings, bottom, listStates[0], onEdit, entryActions) {
                         item(key = "filters") {
                             FilterRow(filter, { filter = it }, runningCount, expiredCount)
                         }
@@ -265,7 +287,7 @@ fun CountdownListScreen(
                         bottomPadding = padding.calculateBottomPadding() + FLOATING_BAR_SPACE,
                     )
                 } else {
-                    EntryList(countUpTab, now, settings, bottom, listStates[1], onEdit)
+                    EntryList(countUpTab, now, settings, bottom, listStates[1], onEdit, entryActions)
                 }
             }
         }
@@ -315,9 +337,32 @@ fun CountdownListScreen(
                 editorTarget = null
                 viewModel.delete(deleted)
             },
+            onShare = { shareTarget = it.id },
+        )
+    }
+    shareTarget?.let { id -> countdowns.firstOrNull { it.id == id } }?.let { entry ->
+        ShareDialog(entry, settings, onDismiss = { shareTarget = null })
+    }
+    resetTarget?.let { id -> countdowns.firstOrNull { it.id == id } }?.let { entry ->
+        ResetDialog(
+            name = entry.name,
+            onConfirm = {
+                resetTarget = null
+                val now = java.time.LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS)
+                viewModel.save(entry.copy(date = now.toLocalDate(), time = now.toLocalTime()))
+            },
+            onDismiss = { resetTarget = null },
         )
     }
 }
+
+/** What the long-press menu of a card can do. */
+class EntryActions(
+    val togglePin: (Countdown) -> Unit,
+    val share: (Countdown) -> Unit,
+    val reset: (Countdown) -> Unit,
+    val delete: (Countdown) -> Unit,
+)
 
 @Composable
 private fun EntryList(
@@ -327,6 +372,7 @@ private fun EntryList(
     bottomPadding: Dp,
     state: LazyListState,
     onEdit: (Countdown) -> Unit,
+    actions: EntryActions,
     header: LazyListScope.() -> Unit = {},
 ) {
     LazyColumn(
@@ -337,14 +383,35 @@ private fun EntryList(
     ) {
         header()
         items(entries, key = { it.countdown.id }) { entry ->
-            EntryCard(
-                countdown = entry.countdown,
-                state = entry.state,
-                now = now,
-                settings = settings,
-                onClick = { onEdit(entry.countdown) },
-                modifier = Modifier.animateItem(),
-            )
+            val countdown = entry.countdown
+            var menuOpen by remember { mutableStateOf(false) }
+            Box(Modifier.animateItem()) {
+                EntryCard(
+                    countdown = countdown,
+                    state = entry.state,
+                    now = now,
+                    settings = settings,
+                    onClick = { onEdit(countdown) },
+                    onLongClick = { menuOpen = true },
+                )
+                // Anchored near the top-right corner, so the menu opens over the card.
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 16.dp, end = 16.dp),
+                ) {
+                    EntryActionsMenu(
+                        expanded = menuOpen,
+                        onDismiss = { menuOpen = false },
+                        pinned = countdown.pinned,
+                        onEdit = { onEdit(countdown) },
+                        onTogglePin = { actions.togglePin(countdown) },
+                        onShare = { actions.share(countdown) },
+                        onReset = if (countdown.kind == Kind.COUNTUP) ({ actions.reset(countdown) }) else null,
+                        onDelete = { actions.delete(countdown) },
+                    )
+                }
+            }
         }
     }
 }
@@ -409,22 +476,27 @@ private fun CountBadge(count: Int, selected: Boolean) {
 }
 
 @Composable
-private fun EntryCard(
+internal fun EntryCard(
     countdown: Countdown,
     state: DisplayState,
     now: Long,
     settings: Settings,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val c = MaterialTheme.colorScheme
     val palette = cardPalette(state, countdown.color)
     val parts = breakdown(Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()), countdown.target())
+    val shape = MaterialTheme.shapes.extraLarge
 
     Surface(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
+        // Tap edits, long press opens the actions menu (with a haptic tick).
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+        shape = shape,
         color = palette.container,
         contentColor = palette.content,
     ) {
@@ -668,9 +740,11 @@ private fun EmptyState(
 @Composable
 private fun FloatingTabs(selected: Int, onSelect: (Int) -> Unit) {
     val c = MaterialTheme.colorScheme
+    // Same colors as the "Aktiv / Abgelaufen" filter buttons, so both controls look like one family.
+    val chip = ToggleButtonDefaults.colors()
     Surface(
         shape = CircleShape,
-        color = c.surfaceContainerHighest,
+        color = chip.containerColor,
         shadowElevation = 8.dp,
         modifier = Modifier
             .height(FLOATING_BAR_HEIGHT)
@@ -693,10 +767,10 @@ private fun FloatingTabs(selected: Int, onSelect: (Int) -> Unit) {
                 val background by animateColorAsState(
                     // Fade from the same color at alpha 0 – animating from Color.Transparent (= transparent
                     // black) would pass through a dark tone and flash black.
-                    if (isSelected) c.primaryContainer else c.primaryContainer.copy(alpha = 0f), label = "tabBackground",
+                    if (isSelected) chip.checkedContainerColor else chip.checkedContainerColor.copy(alpha = 0f), label = "tabBackground",
                 )
                 val content by animateColorAsState(
-                    if (isSelected) c.onPrimaryContainer else c.onSurfaceVariant, label = "tabContent",
+                    if (isSelected) chip.checkedContentColor else chip.contentColor, label = "tabContent",
                 )
                 Row(
                     modifier = Modifier

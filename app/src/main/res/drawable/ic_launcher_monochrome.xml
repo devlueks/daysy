@@ -5,6 +5,12 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Scaled to 88 % around the center: more breathing room in every launcher icon shape. -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.88"
+        android:scaleY="0.88">
     <path
         android:fillColor="#FFFFFF"
         android:fillType="evenOdd"
@@ -12,4 +18,5 @@
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M54,54L54,44A10,10 0 0,1 62.66,59Z" />
+    </group>
 </vector>

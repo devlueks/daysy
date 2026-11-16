@@ -330,7 +330,7 @@ private fun Missing(context: Context, appWidgetId: Int) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            "Eintrag auswählen",
+            context.getString(R.string.widget_choose_entry),
             style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 15.sp, fontWeight = FontWeight.Bold),
         )
     }

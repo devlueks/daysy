@@ -5,6 +5,12 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Scaled to 88 % around the center: more breathing room in every launcher icon shape. -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.88"
+        android:scaleY="0.88">
     <!-- Petals -->
     <path
         android:fillColor="#D4537E"
@@ -21,4 +27,5 @@
     <path
         android:fillColor="#993556"
         android:pathData="M54,51a3,3 0 1,1 0,6a3,3 0 1,1 0,-6z" />
+    </group>
 </vector>

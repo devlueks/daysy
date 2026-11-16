@@ -13,6 +13,7 @@
     <string name="undo">Rückgängig</string>
     <string name="settings">Einstellungen</string>
     <string name="pinned">Angepinnt</string>
+    <string name="more_actions">Weitere Aktionen</string>
     <string name="off">Aus</string>
     <string name="on">An</string>
 
@@ -76,6 +77,21 @@
     <plurals name="milestone_years"><item quantity="one">%d Jahr</item><item quantity="other">%d Jahre</item></plurals>
 
     <!-- Reminders -->
+    <plurals name="reminder_minutes"><item quantity="one">%d Minute</item><item quantity="other">%d Minuten</item></plurals>
+    <plurals name="reminder_hours"><item quantity="one">%d Stunde</item><item quantity="other">%d Stunden</item></plurals>
+    <plurals name="reminder_days"><item quantity="one">%d Tag</item><item quantity="other">%d Tage</item></plurals>
+    <plurals name="reminder_weeks"><item quantity="one">%d Woche</item><item quantity="other">%d Wochen</item></plurals>
+    <string name="reminders_title">Erinnerungen vorher</string>
+    <string name="reminder_custom">Eigene</string>
+    <string name="reminder_custom_title">Eigene Erinnerung</string>
+    <string name="reminder_custom_hint">Wie lange vor Ablauf?</string>
+    <string name="reminder_amount">Anzahl</string>
+    <string name="reminder_unit_minutes">Minuten</string>
+    <string name="reminder_unit_hours">Stunden</string>
+    <string name="reminder_unit_days">Tage</string>
+    <string name="reminder_unit_weeks">Wochen</string>
+    <string name="reminder_max">Bis zu %d Erinnerungen</string>
+    <string name="reminder_remove">Erinnerung %1$s entfernen</string>
     <string name="reminder_none">Keine</string>
     <string name="reminder_hour">1 Std.</string>
     <string name="reminder_day">1 Tag</string>
@@ -126,7 +142,6 @@
     <string name="notify_milestone_hint">Wenn ein Meilenstein erreicht ist</string>
     <string name="section_notification">Benachrichtigung</string>
     <string name="notify_on_end">Bei Ablauf benachrichtigen</string>
-    <string name="extra_reminder">Zusätzliche Erinnerung</string>
     <string name="reset_title">Zurücksetzen?</string>
     <string name="reset_text">„%1$s“ startet jetzt wieder bei 0. Das bisherige Startdatum geht dabei verloren.</string>
     <string name="pick_time">Uhrzeit wählen</string>
@@ -164,7 +179,7 @@
     <string name="theme_system">System</string>
     <string name="theme_light">Hell</string>
     <string name="theme_dark">Dunkel</string>
-    <string name="settings_tip">Tipp: Tippe auf einen Eintrag, um ihn zu bearbeiten, anzupinnen oder zu löschen. Wische zur Seite, um zwischen „Countdowns“ und „Zeit seit“ zu wechseln.</string>
+    <string name="settings_tip">Tipp: Tippe auf einen Eintrag, um ihn zu bearbeiten. Halte ihn gedrückt für weitere Aktionen wie Anpinnen, Teilen oder Löschen. Wische zur Seite, um zwischen „Countdowns“ und „Zeit seit“ zu wechseln.</string>
 
     <!-- Notifications -->
     <string name="channel_countdowns">Countdowns</string>
@@ -182,4 +197,17 @@
     <string name="widget_config_title">Widget</string>
     <string name="widget_config_empty">Noch keine Einträge. Lege zuerst in der App einen Countdown oder „Zeit seit“ an.</string>
     <string name="widget_config_question">Welcher Eintrag soll auf dem Startbildschirm erscheinen?</string>
+
+    <!-- Sharing -->
+    <string name="share">Teilen</string>
+    <string name="share_title">Teilen</string>
+    <string name="share_to_go">Noch %1$s</string>
+    <string name="share_already">Schon %1$s</string>
+    <string name="share_ended">Abgelaufen %1$s</string>
+    <string name="share_chooser">Teilen über</string>
+    <string name="share_failed">Das Bild konnte nicht erstellt werden.</string>
+
+    <!-- App shortcuts (long-press the icon) -->
+    <string name="shortcut_countdown">Neuer Countdown</string>
+    <string name="shortcut_since">Neues „Zeit seit“</string>
 </resources>
