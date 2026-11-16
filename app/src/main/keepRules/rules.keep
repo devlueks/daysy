@@ -10,3 +10,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+# Enum names are stored in the saved JSON (e.g. "COUNTDOWN", "DAY") – keep them unchanged.
+-keep enum io.github.devlueks.daysy.** { *; }
+
+# WorkManager (used by Glance widgets) creates its Room database via reflection
+# ("WorkDatabase_Impl"); the old Room version it pulls in ships no keep rule for that.
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
